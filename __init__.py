@@ -29,6 +29,7 @@ from mycroft.skills.core import MycroftSkill
 from mycroft.util.log import getLogger
 from mycroft.util import play_mp3
 from random import randrange
+import time
 import threading
 
 __author__ = 'eward'
@@ -84,14 +85,18 @@ class MP3DemoSkill(MycroftSkill):
 
     def handle_play_music_intent(self, message):
         # Play any song
+        self.speak_dialog("play.song")
+        time.sleep(4)
         mp3s = listdir(join(dirname(__file__), "mp3"))
         index = randrange(0, len(mp3s))
         self.process = play_mp3(join(dirname(__file__), "mp3", mp3s[index]))
 
     def handle_loop_music_intent(self, message):
         # Loop random songs
+        self.speak_dialog("loop.song")
         self.stop_commanded = False
         def play_in_thread(self):
+            time.sleep(4)
             mp3s = listdir(join(dirname(__file__), "mp3"))
             index = randrange(0, len(mp3s))
             self.process = play_mp3(join(dirname(__file__), "mp3", mp3s[index]))
@@ -102,13 +107,14 @@ class MP3DemoSkill(MycroftSkill):
 
     def handle_skip_music_intent(self, message):
         if self.process and not self.stop_commanded:
+            self.speak_dialog("music.skip")
             self.process.terminate()
 
     def stop(self):
         self.stop_commanded = True
         if self.process:  # and self.process.poll() is None:
             # No reason to say "music stopped", that is obvious!
-            # self.speak_dialog('music.stop')
+            self.speak_dialog('music.stop')
             self.process.terminate()
             self.process.wait()
 
